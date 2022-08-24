@@ -15,10 +15,10 @@ func TestClient_Send(t *testing.T) {
     "wide_screen_mode": true
   },
   "header": {
-    "template": "yellow",
+    "template": "red",
     "title": {
       "tag": "plain_text",
-      "content": "上线后出现问题的爬虫网站"
+      "content": "请注意查看工作任务"
     }
   },
   "elements": [
@@ -29,7 +29,7 @@ func TestClient_Send(t *testing.T) {
           "is_short": true,
           "text": {
             "tag": "lark_md",
-            "content": "1. [Aldo](https://dataflow.voiladev.xyz/#/crawl/tasks?page=1&count=50&siteId=740a70f485afb9d035f01c0e86be529c&triger=TrigerTypeTimer)"
+            "content": "1. [Jira](https://jira.voiladev.xyz/secure/Dashboard.jspa)"
           }
         }
       ]
