@@ -22,7 +22,7 @@ jobs:
         go-version: 1.17
   
     - name: Granting private modules access
-      run: git config --global url."https://${{ secrets.GITHUB_PRIVATE_TOKEN }}:x-oauth-basic@github.com/".insteadOf "https://github.com/"
+      run: git config --global url."https://${{ secrets.GIT_PRIVATE_TOKEN }}:x-oauth-basic@github.com/".insteadOf "https://github.com/"
 
     - name: Build
       run: make all
@@ -31,7 +31,7 @@ jobs:
       run: docker build . --file Dockerfile --tag image
 
     - name: Log into registry
-      run: echo "${{ secrets.GITHUB_PRIVATE_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+      run: echo "${{ secrets.GIT_PRIVATE_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
     - name: Push image
       run: |
