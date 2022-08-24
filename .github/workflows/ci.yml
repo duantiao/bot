@@ -1,0 +1,51 @@
+name: Image
+
+on:
+  push:
+    branches:
+    - main
+    - feature/*
+    paths:
+    - '**.go'
+    - 'go.mod'
+    tags: v*-release
+    
+jobs:
+  release:
+    runs-on: self-hosted
+    steps:
+    - uses: actions/checkout@v2
+      
+    - name: Set up Go
+      uses: actions/setup-go@v2
+      with:
+        go-version: 1.17
+  
+    - name: Granting private modules access
+      run: git config --global url."https://${{ secrets.GITHUB_PRIVATE_TOKEN }}:x-oauth-basic@github.com/".insteadOf "https://github.com/"
+
+    - name: Build
+      run: make all
+      
+    - name: Build image
+      run: docker build . --file Dockerfile --tag image
+
+    - name: Log into registry
+      run: echo "${{ secrets.GITHUB_PRIVATE_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+    - name: Push image
+      run: |
+        IMAGE_ID=ghcr.io/${{ github.repository }}
+        # Change all uppercase to lowercase
+        IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
+        # Strip git ref prefix from version
+        VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+        # Strip "v" prefix from tag name
+        [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
+        [[ "${{ github.ref }}" == "refs/heads/"* ]] && VERSION=$(echo "${{ github.sha }}" | cut -c 1-12)
+        # Use Docker `latest` tag convention
+        [ "$VERSION" == "main" ] && VERSION=latest
+        echo IMAGE_ID=$IMAGE_ID
+        echo VERSION=$VERSION
+        docker tag image $IMAGE_ID:$VERSION
+        docker push $IMAGE_ID:$VERSION
